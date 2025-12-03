@@ -1,0 +1,91 @@
+-- Step 1: Load the healthcare stroke dataset into a SQL table
+CREATE TABLE stroke_data (
+    id INT,
+    age INT,
+    hypertension BOOLEAN,
+    heart_disease BOOLEAN,
+    marital_status VARCHAR(50),
+    work_type VARCHAR(50),
+    residence_type VARCHAR(50),
+    avg_glucose_level FLOAT,
+    bmi FLOAT,
+    smoking_status VARCHAR(50),
+    stroke BOOLEAN
+);
+
+-- Step 2: Insert data into the table from a CSV or other data source
+-- Assuming you've already loaded the data into the system (using PySpark or any ETL tool)
+
+-- Step 3: Query to identify the relationship between age, hypertension, and stroke risk
+SELECT
+    age,
+    hypertension,
+    COUNT(*) AS total_patients,
+    SUM(CASE WHEN stroke = 1 THEN 1 ELSE 0 END) AS stroke_cases,
+    ROUND(SUM(CASE WHEN stroke = 1 THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS stroke_percentage
+FROM
+    stroke_data
+GROUP BY
+    age, hypertension
+ORDER BY
+    age;
+
+-- Step 4: Query to find the average BMI and glucose level by smoking status
+SELECT
+    smoking_status,
+    AVG(bmi) AS avg_bmi,
+    AVG(avg_glucose_level) AS avg_glucose_level
+FROM
+    stroke_data
+WHERE
+    smoking_status IS NOT NULL
+GROUP BY
+    smoking_status;
+
+-- Step 5: Query to identify high-risk groups based on age, hypertension, and heart disease
+SELECT
+    age,
+    hypertension,
+    heart_disease,
+    COUNT(*) AS total_patients,
+    SUM(CASE WHEN stroke = 1 THEN 1 ELSE 0 END) AS stroke_cases,
+    ROUND(SUM(CASE WHEN stroke = 1 THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS stroke_percentage
+FROM
+    stroke_data
+WHERE
+    age >= 50 AND (hypertension = 1 OR heart_disease = 1)
+GROUP BY
+    age, hypertension, heart_disease
+ORDER BY
+    stroke_percentage DESC;
+
+-- Step 6: Query to identify correlations between BMI and stroke risk
+SELECT
+    CASE 
+        WHEN bmi < 18.5 THEN 'Underweight'
+        WHEN bmi BETWEEN 18.5 AND 24.9 THEN 'Normal weight'
+        WHEN bmi BETWEEN 25 AND 29.9 THEN 'Overweight'
+        WHEN bmi >= 30 THEN 'Obese'
+    END AS bmi_category,
+    COUNT(*) AS total_patients,
+    SUM(CASE WHEN stroke = 1 THEN 1 ELSE 0 END) AS stroke_cases,
+    ROUND(SUM(CASE WHEN stroke = 1 THEN 1 ELSE 0 END) / COUNT(*) * 100, 2) AS stroke_percentage
+FROM
+    stroke_data
+GROUP BY
+    bmi_category
+ORDER BY
+    stroke_percentage DESC;
+
+-- Step 7: Find patients with high glucose levels and no stroke (could indicate undiagnosed conditions)
+SELECT
+    id,
+    age,
+    avg_glucose_level,
+    stroke
+FROM
+    stroke_data
+WHERE
+    avg_glucose_level > 150 AND stroke = 0
+ORDER BY
+    avg_glucose_level DESC;
