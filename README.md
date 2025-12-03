@@ -22,8 +22,7 @@ The dataset includes a variety of patient attributes such as:
 - **Python (Pandas, NumPy)** — for preprocessing and supplementary analysis  
 - **Jupyter Notebooks** — for iterative exploratory data analysis (EDA) & modeling  
 - **SQL (via Spark SQL)** — for structured data querying and manipulation  
-- **Visualization (if any)** — to interpret patterns/trends (dependent on notebook outputs)
-
+ 
 ## 🔄 Workflow & Pipeline  
 
 | Stage | Description |
