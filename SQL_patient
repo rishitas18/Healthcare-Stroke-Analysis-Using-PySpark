@@ -89,3 +89,6 @@ WHERE
     avg_glucose_level > 150 AND stroke = 0
 ORDER BY
     avg_glucose_level DESC;
+
+
+ful sql file
